@@ -1,0 +1,5 @@
+﻿  Tetris.cpp
+D:\llp\Game\C++\Tetris\Tetris.cpp(252,16): warning C4838: 从“int”转换到“SHORT”需要收缩转换
+D:\llp\Game\C++\Tetris\Tetris.cpp(252,18): warning C4838: 从“int”转换到“SHORT”需要收缩转换
+D:\llp\Game\C++\Tetris\Tetris.cpp(363,9): warning C4101: “flag”: 未引用的局部变量
+  Tetris.vcxproj -> D:\llp\Game\C++\Tetris\x64\Debug\Tetris.exe
