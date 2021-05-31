@@ -5,8 +5,6 @@
 #include<ctime>
 #include<conio.h>
 #include<cstdio>
-#define DOT 24
-#define TEN 23
 using namespace std;
 
 
@@ -40,37 +38,36 @@ public:
 	void DeleteLine();       //消除一行
 	void KeyEvent();
 	void SetPos(int, int);
-	void CheckDot();
+	bool CheckDot();
 	void KeyDot();
 };
 
-const int sharp[19][8] =					//组成图形的各个点的各个坐标，先纵后横
+const int sharp[25][10] =					//组成图形的各个点的各个坐标，先纵后横
 {
-//条形
-{0,0,1,0,2,0,3,0},{0,0,0,1,0,2,0,3},     
-//方块
-{0,0,1,0,0,1,1,1},  
-//L形
-{0,0,1,0,1,1,1,2},{0,0,0,1,1,0,2,0},{0,0,0,1,0,2,1,2},{0,1,1,1,2,0,2,1},
-//J形
-{1,0,1,1,1,2,0,2},{0,0,1,0,2,0,2,1},{0,0,0,1,0,2,1,0},{0,0,0,1,1,1,2,1},
-//T形,按顺时针旋转排序
-{0,0,0,1,0,2,1,1},{0,1,1,0,1,1,2,1},{0,1,1,0,1,1,1,2},{0,0,1,0,1,1,2,0},
-//S形,按顺时针旋转排序
-{0,1,0,2,1,0,1,1},{0,0,1,0,1,1,2,1},
-//Z形,按顺时针旋转排序
-{0,0,0,1,1,1,1,2},{0,1,1,0,1,1,2,0}
+	//条形
+	{0,0,1,0,2,0,3,0,0,0},{0,0,0,1,0,2,0,3,0,0},
+	//方块
+	{0,0,1,0,0,1,1,1,0,0},
+	//L形
+	{0,0,1,0,1,1,1,2,0,0},{0,0,0,1,1,0,2,0,0,0},{0,0,0,1,0,2,1,2,0,0},{0,1,1,1,2,0,2,1,0,1},
+	//J形
+	{1,0,1,1,1,2,0,2,1,0},{0,0,1,0,2,0,2,1,0,0},{0,0,0,1,0,2,1,0,0,0},{0,0,0,1,1,1,2,1,0,0},
+	//T形,按顺时针旋转排序
+	{0,0,0,1,0,2,1,1,0,0},{0,1,1,0,1,1,2,1,0,1},{0,1,1,0,1,1,1,2,0,1},{0,0,1,0,1,1,2,0,0,0},
+	//S形,按顺时针旋转排序
+	{0,1,0,2,1,0,1,1,0,1},{0,0,1,0,1,1,2,1,0,0},
+	//Z形,按顺时针旋转排序
+	{0,0,0,1,1,1,1,2,0,0},{0,1,1,0,1,1,2,0,0,1},
+	//U形
+	{ 0,0,0,2,1,0,1,1,1,2 },{ 0,0,0,1,1,0,2,0,2,1 },{ 0,0,0,1,0,2,1,0,1,2 },{ 0,0,0,1,1,1,2,0,2,1 },
+	//十字形
+	{ 0,1,1,0,1,1,1,2,2,1 },
+	//点
+	{ 0,0,0,0,0,0,0,0,0,0 }
 };
 
-const int dot[2] = { 0,0 };//超级点
-const int sharp_u[4][14] = { 
-	{0,0,0,2,1,0,1,2,2,0,2,1,2,2},
-	{0,0,0,1,0,2,1,0,2,0,2,1,2,2},
-	{0,0,0,1,0,2,1,0,1,2,2,0,2,2},
-	{0,0,0,1,0,2,1,2,2,0,2,1,2,2} };//U形
-const int sharp_ten[10] = { 0,1,1,0,1,1,1,2,2,1 };//十字形
 
-const int high[24] = { 4,1,2,2,3,2,3,2,3,2,3,2,3,2,3,2,3,2,3,3,3,3,3,3 };
+const int high[25] = { 4,1,2,2,3,2,3,2,3,2,3,2,3,2,3,2,3,2,3,2,3,2,3,3,1 };
 int map[28][16];
 //条形
 #define a1  0			
@@ -109,6 +106,8 @@ int map[28][16];
 #define u4 22
 //十字形
 #define ten 23
+//点
+#define dot 24
 
 
 
@@ -212,38 +211,38 @@ void Tetris::Turn(int num)				//旋转函数
 	*/
 	switch (num)
 	{
-	//条形旋转
-	case a1: id = a2; break;					
+		//条形旋转
+	case a1: id = a2; break;
 	case a2: id = a1; break;
-	//方块旋转
+		//方块旋转
 	case b: id = b; break;
-	//L形旋转
+		//L形旋转
 	case c1: id = c2; break;
 	case c2: id = c3; break;
 	case c3: id = c4; break;
 	case c4: id = c1; break;
-	//J型旋转
+		//J型旋转
 	case d1: id = d2; break;
 	case d2: id = d3; break;
 	case d3: id = d4; break;
 	case d4: id = d1; break;
-	//T形旋转
+		//T形旋转
 	case t1: id = t2; break;
 	case t2: id = t3; break;
 	case t3: id = t4; break;
 	case t4: id = t1; break;
-	//S形旋转
+		//S形旋转
 	case s1: id = s2; break;
 	case s2: id = s1; break;
-	//Z形旋转
+		//Z形旋转
 	case z1: id = z2; break;
 	case z2: id = z1; break;
-	//U形旋转
+		//U形旋转
 	case u1: id = u2; break;
 	case u2: id = u3; break;
 	case u3: id = u4; break;
 	case u4: id = u1; break;
-	//十字形旋转
+		//十字形旋转
 	case ten: id = ten; break;
 	}
 }
@@ -299,12 +298,13 @@ void Tetris::AddLine() //实现最下方增加一行
 				sum = sum + map[24][j];
 			}
 		}
+		top = top - 1;
 		UpdateMap();
 		startTime_add = clock();//重置开始时间
 	}
 }
 
-void Tetris::UpdateMap(){
+void Tetris::UpdateMap() {
 	for (int x = 0; x < 25; x++) {
 		for (int y = 0; y < 13; y++) {
 			SetPos((y + 1) * 2, x + 1);
@@ -335,7 +335,6 @@ void Tetris::DeleteLine() {
 				break;
 			}
 		}
-
 		//当flag为1时，消行
 		if (flag == 1)
 		{
@@ -360,9 +359,8 @@ void Tetris::DeleteLine() {
 
 void Tetris::Updata()					//更新函数
 {
-	int i, flag;
 	int nx, ny;
-	for (i = 0; i < 4; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		nx = point[0] + sharp[id][i * 2];
 		ny = point[1] + sharp[id][i * 2 + 1];
@@ -376,155 +374,45 @@ void Tetris::Updata()					//更新函数
 		top = point[0];					//最高点的更新
 
 	DeleteLine();//消除行
-
-	//AddData();//实现最下方增加一行		
-	}
+	AddLine();//计算时间，实现最下方增加一行		
+}
 
 void Tetris::Draw(int x, int y, int num)				//画图形
 {
 	int nx, ny;
-	if (num == DOT) {
-		nx = x + 0;
-		ny = y + 0;
-		SetPos((ny + 1) * 2, nx + 1);
-		SetColor(6);
-		cout << "■";
-		
-	}//画超级点
-	else if (num == TEN) {
-		for (int i = 0; i < 5; i++)
-		{
-			nx = x + sharp_ten[2 * i];
-			ny = y + sharp_ten[2 * i + 1];
-			SetPos((ny + 1) * 2, nx + 1);
-			SetColor(4);
-			cout << "■";
-		}
-	}
-	else if (19<=num && num <=22) {
-		for (int i = 0; i < 7; i++)
-		{
-			nx = x + sharp_u[0][2 * i];
-			ny = y + sharp_u[0][2 * i + 1];
-			SetPos((ny + 1) * 2, nx + 1);
-			SetColor(3);
-			cout << "■";
-		}
-	}
-	else{
-		for (int i = 0; i < 4; i++)
-		{
-			nx = x + sharp[num][2 * i];
-			ny = y + sharp[num][2 * i + 1];
-			SetPos((ny + 1) * 2, nx + 1);
-			SetColor(i + 1);
-			cout << "■";
-		}
-	}//画普通图形
-	/*for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		nx = x + sharp[num][2 * i];
 		ny = y + sharp[num][2 * i + 1];
 		SetPos((ny + 1) * 2, nx + 1);
-		SetColor(i + 1);
+		if (num == 24)SetColor(5);
+		else SetColor(i + 1);
 		cout << "■";
-	}*/
+	}
 }
 
 void Tetris::ReDraw(int x, int y, int num)				//为更新图形的位置清除图形
 {
 	int nx, ny;
-
-	/*for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		nx = x + sharp[num][2 * i];
 		ny = y + sharp[num][2 * i + 1];
 		SetPos((ny + 1) * 2, nx + 1);
 		cout << "  ";
-	}*/
-	if (num == DOT) {
-		nx = x + 0;
-		ny = y + 0;
-		SetPos((ny + 1) * 2, nx + 1);
-		SetPos((ny + 1) * 2, nx + 1);
-		cout << "  ";
-
-	}//画超级点
-	else if (num == TEN) {
-		for (int i = 0; i < 5; i++)
-		{
-			nx = x + sharp_ten[2 * i];
-			ny = y + sharp_ten[2 * i + 1];
-			SetPos((ny + 1) * 2, nx + 1);
-			cout << "  ";
-		}
 	}
-	else if (19 <= num && num <= 22) {
-		for (int i = 0; i < 7; i++)
-		{
-			nx = x + sharp_u[0][2 * i];
-			ny = y + sharp_u[0][2 * i + 1];
-			SetPos((ny + 1) * 2, nx + 1);
-			cout << "  ";
-		}
-	}
-	else {
-		for (int i = 0; i < 4; i++)
-		{
-			nx = x + sharp[num][2 * i];
-			ny = y + sharp[num][2 * i + 1];
-			SetPos((ny + 1) * 2, nx + 1);
-			cout << "  ";
-		}
-	}//画普通图形
 }
 
 bool Tetris::Judge(int x, int y, int num)				//判定在x, y 所指位置是否可画编号为
 {													//num 的图形， 若不可画则反回true
 	int nx, ny;
-	/*for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		nx = x + sharp[num][2 * i];
 		ny = y + sharp[num][2 * i + 1];
 		if (!(nx < 25 && nx >= 0 && ny < 13 && ny >= 0 && !map[nx][ny]))
 			return true;
-	}*/
-
-	if (num == DOT) {
-		nx = x + 0;
-		ny = y + 0;
-		if (!(nx < 25 && nx >= 0 && ny < 13 && ny >= 0 && !map[nx][ny]))
-			return true;
-
-	}//超级点
-	else if (num == TEN) {
-		for (int i = 0; i < 5; i++)
-		{
-			nx = x + sharp_ten[2 * i];
-			ny = y + sharp_ten[2 * i + 1];
-			if (!(nx < 25 && nx >= 0 && ny < 13 && ny >= 0 && !map[nx][ny]))
-				return true;
-		}
 	}
-	else if (19 <= num && num <= 22) {
-		for (int i = 0; i < 7; i++)
-		{
-			nx = x + sharp_u[0][2 * i];
-			ny = y + sharp_u[0][2 * i + 1];
-			if (!(nx < 25 && nx >= 0 && ny < 13 && ny >= 0 && !map[nx][ny]))
-				return true;
-		}
-	}
-	else {
-		for (int i = 0; i < 4; i++)
-		{
-			nx = x + sharp[num][2 * i];
-			ny = y + sharp[num][2 * i + 1];
-			if (!(nx < 25 && nx >= 0 && ny < 13 && ny >= 0 && !map[nx][ny]))
-				return true;
-		}
-	}//普通图形
-
 	return false;
 }
 
@@ -533,14 +421,12 @@ void Tetris::Run()					//运行游戏
 	int next_id;
 	srand((int)time(0));
 	startTime_add = clock();
-	id = rand() % 1;
-	//next_id = rand() % 1;
-	/*id = rand() % 19;
-	next_id = rand() % 19;*/
-	next_id = DOT;
+	//id = rand() % 1;
+	id = rand() % 23;
+	//next_id = rand() % 24;
+	next_id = 24;
 	Draw(point[0], point[1], id);
 	Draw(5, 16, next_id);
-	//Draw(5, 16, DOT);
 	int count;
 	if (rank == 1)
 		count = 150;
@@ -551,24 +437,36 @@ void Tetris::Run()					//运行游戏
 	else
 		count = 5;
 	int i = 0;  //不同等级对应不同count
-
 	while (1)
 	{
+		AddLine();
 		if (!(i < count))				//i 与 count 用于控制时间
 		{
 			i = 0;
+			AddLine();
 			if (Judge(point[0] + 1, point[1], id))			//在某一位置不能下落的话
 			{
 				Updata();
 				id = next_id;
-				//CheckDot();
 				ReDraw(5, 16, next_id);
-				next_id = rand() % 1;
-				//next_id = rand() % 19;
+				//next_id = 24;
+				next_id = rand() % 24;
 
 				point[0] = 0; point[1] = 5;
 				Draw(point[0], point[1], id);
 				Draw(5, 16, next_id);
+
+				while (CheckDot()) {
+					AddLine();
+					id = next_id;
+					ReDraw(5, 16, next_id);
+					//next_id = 24;
+					next_id = rand() % 24;
+
+					point[0] = 0; point[1] = 5;
+					Draw(point[0], point[1], id);
+					Draw(5, 16, next_id);
+				}//重复超级点
 
 				if (Judge(point[0], point[1], id))
 				{
@@ -586,8 +484,10 @@ void Tetris::Run()					//运行游戏
 				ReDraw(point[0], point[1], id);
 				point[0]++;
 				Draw(point[0], point[1], id);
+				AddLine();
 			}
 		}
+		AddLine();
 		KeyEvent();
 		Sleep(1);		//等待1毫秒
 		i++;				//控制下落间隔
@@ -644,16 +544,19 @@ void Tetris::KeyEvent() {
 	}
 }
 
-void Tetris::CheckDot() {
+bool Tetris::CheckDot() {
 	startTime_dot = clock();
-	if (id == DOT) {
+	if (id == 24) {
 		endTime_dot = clock();
-		while ((endTime_dot- startTime_dot)/ CLOCKS_PER_SEC <5)
+		while ((endTime_dot - startTime_dot) / CLOCKS_PER_SEC < 5)
 		{
 			KeyDot();
 			endTime_dot = clock();
 		}
+		UpdateMap();//消除超级点
+		return true;
 	}
+	return false;
 }
 
 void Tetris::KeyDot()
@@ -669,20 +572,17 @@ void Tetris::KeyDot()
 			if (key2 == 72)			//按向上方向键时
 			{
 				for (int x = 0; x < 25; x++) {
-					if (map[x][point[1]] == 0) {
+					if ((map[x][point[1]] == 0 && map[x + 1][point[1]] != 0) || (map[x][point[1]] == 0 && x == 24)) {
+						map[x][point[1]] = 1;
 						SetPos((point[1] + 1) * 2, x + 1);
 						SetColor(5);
 						cout << "■";
-						UpdateMap();
+						int temp = point[0];
+						point[0] = x;
+						Updata();
+						point[0] = temp;
+						break;
 					}
-					/*for (int y = 0; y < 13; y++) {
-						SetPos((y + 1) * 2, x + 1);
-						if (map[x][y] == 0) { cout << "  "; }
-						else {
-							SetColor(5);
-							cout << "■";
-						}
-					}*/
 				}
 			}
 			if (key2 == 80)				//按向下方向键时
@@ -692,9 +592,19 @@ void Tetris::KeyDot()
 						SetPos((point[1] + 1) * 2, x + 1);
 						cout << "  ";
 						map[x][point[1]] = 0;
+						int sign1 = 0;
+						for (int i = 0; i < 25; i++) {
+							if (map[x][i] != 0) {
+								sign1 = 1;
+								break;
+							}
+							else sign1 = 0;
+						}//判断top是否需要改变
+						if (sign1 == 1) top = top - 1;
 						UpdateMap();
-						//Updata();
+						break;
 					}
+					//Updata();
 				}
 			}
 			else if (key2 == 75)				//按向左方向键时
@@ -704,10 +614,12 @@ void Tetris::KeyDot()
 					ReDraw(point[0], point[1], id);
 					point[1]--;
 					Draw(point[0], point[1], id);
+
 				}
 			}
 			else if (key2 == 77)					//按向右方向键时
 			{
+
 				if (!Judge(point[0], point[1] + 1, id))
 				{
 					ReDraw(point[0], point[1], id);
@@ -715,9 +627,9 @@ void Tetris::KeyDot()
 					Draw(point[0], point[1], id);
 				}
 			}
+			else if (key == 32)					// 按下空格暂停
+				Pause();
 		}
-		else if (key == 32)					// 按下空格暂停
-			Pause();
 	}
 }
 
@@ -730,6 +642,3 @@ int main()
 	game.DrawMap();
 	game.Run();
 }
-
-
-
