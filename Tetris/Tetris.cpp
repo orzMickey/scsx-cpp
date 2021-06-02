@@ -33,13 +33,13 @@ public:
 	void Updata();				// 更新界面
 	void Pause();				//游戏暂停
 	void Input_score();
-	void AddLine();
+	void AddLine();				//增加一行
 	void UpdateMap();        //按照Map更新界面
 	void DeleteLine();       //消除一行
-	void KeyEvent();
+	void KeyEvent();			//键盘控制
 	void SetPos(int, int);
-	bool CheckDot();
-	void KeyDot();
+	bool CheckDot();		//检测顶部超级点
+	void KeyDot();			//超级点控制
 };
 
 const int sharp[25][10] =					//组成图形的各个点的各个坐标，先纵后横
@@ -62,7 +62,7 @@ const int sharp[25][10] =					//组成图形的各个点的各个坐标，先纵后横
 	{ 0,0,0,2,1,0,1,1,1,2 },{ 0,0,0,1,1,0,2,0,2,1 },{ 0,0,0,1,0,2,1,0,1,2 },{ 0,0,0,1,1,1,2,0,2,1 },
 	//十字形
 	{ 0,1,1,0,1,1,1,2,2,1 },
-	//点
+	//超级点
 	{ 0,0,0,0,0,0,0,0,0,0 }
 };
 
@@ -110,8 +110,6 @@ int map[28][16];
 #define dot 24
 
 
-
-
 Tetris::Tetris()				//构造函数， 初始化各个值
 {
 	point[0] = 0;
@@ -142,9 +140,12 @@ void Tetris::Welocme()			//欢迎界面
 		cout << "		→ - 右移" << endl;
 		cout << "		空格 - 暂停" << endl;
 		cout << "■■■■■■■■■■■■■■■■■■■■■" << endl;
+		cout << "注：此程序为完成版，开启了“增行”、U形、十字形、超级点" << endl;
+		cout << "	 所有图形均为随机产生！！！！！" << endl;
 		cout << "■ 按1—3选择难度■" << endl;
-		SetPos(20, 10);
+		SetPos(20, 12);
 		x = getchar();
+
 		if (x <= '9' && x >= '0')
 		{
 			rank = x - '0';
@@ -276,12 +277,12 @@ void Tetris::Pause()				// 暂停函数
 	SetPos(30, 11);
 	cout << "              ";
 }
-
 void Tetris::AddLine() //实现最下方增加一行	
 {
 	endTime_add = clock();
 	if ((endTime_add - startTime_add) / CLOCKS_PER_SEC >= 10) {
-		int index = top;
+		//int index = top;
+		int index = 0;
 		for (index; index <= 24; index++) {
 			for (int j = 0; j < 13; j++) {
 				map[index - 1][j] = map[index][j];
@@ -303,20 +304,26 @@ void Tetris::AddLine() //实现最下方增加一行
 		startTime_add = clock();//重置开始时间
 	}
 }
-
 void Tetris::UpdateMap() {
 	for (int x = 0; x < 25; x++) {
 		for (int y = 0; y < 13; y++) {
 			SetPos((y + 1) * 2, x + 1);
 			if (map[x][y] == 0) { cout << "  "; }
+			else if (map[x][y] == 2) {
+				SetColor(2);
+				cout << "■";
+			}
 			else {
 				SetColor(5);
 				cout << "■";
 			}
 		}
 	}
+	if (id != 24) {
+		ReDraw(point[0], point[1], id);
+		Draw(point[0], point[1], id);
+	}	
 }
-
 void Tetris::DeleteLine() {
 	int i, flag;
 	for (i = point[0]; i < point[0] + high[id]; i++)			//消除行
@@ -356,7 +363,6 @@ void Tetris::DeleteLine() {
 		}
 	}
 }
-
 void Tetris::Updata()					//更新函数
 {
 	int nx, ny;
@@ -365,18 +371,25 @@ void Tetris::Updata()					//更新函数
 		nx = point[0] + sharp[id][i * 2];
 		ny = point[1] + sharp[id][i * 2 + 1];
 		SetPos((ny + 1) * 2, nx + 1);
-		SetColor(5);
-		cout << "■";
-		map[nx][ny] = 1;					//界面各个点是否为空的更新
+		if (id != 23) {
+			SetColor(5);
+			cout << "■";
+			map[nx][ny] = 1;
+		}
+		else {
+			SetColor(2);
+			cout << "■";
+			map[nx][ny] = 2;
+		}
+		//界面各个点是否为空的更新
 	}
 
 	if (point[0] < top)
 		top = point[0];					//最高点的更新
 
 	DeleteLine();//消除行
-	AddLine();//计算时间，实现最下方增加一行		
+	//AddLine();//计算时间，实现最下方增加一行		
 }
-
 void Tetris::Draw(int x, int y, int num)				//画图形
 {
 	int nx, ny;
@@ -386,11 +399,11 @@ void Tetris::Draw(int x, int y, int num)				//画图形
 		ny = y + sharp[num][2 * i + 1];
 		SetPos((ny + 1) * 2, nx + 1);
 		if (num == 24)SetColor(5);
+		else if (num == 23)SetColor(2);
 		else SetColor(i + 1);
 		cout << "■";
 	}
 }
-
 void Tetris::ReDraw(int x, int y, int num)				//为更新图形的位置清除图形
 {
 	int nx, ny;
@@ -402,7 +415,6 @@ void Tetris::ReDraw(int x, int y, int num)				//为更新图形的位置清除图形
 		cout << "  ";
 	}
 }
-
 bool Tetris::Judge(int x, int y, int num)				//判定在x, y 所指位置是否可画编号为
 {													//num 的图形， 若不可画则反回true
 	int nx, ny;
@@ -415,16 +427,13 @@ bool Tetris::Judge(int x, int y, int num)				//判定在x, y 所指位置是否可画编号为
 	}
 	return false;
 }
-
 void Tetris::Run()					//运行游戏
 {
 	int next_id;
 	srand((int)time(0));
 	startTime_add = clock();
-	//id = rand() % 1;
-	id = rand() % 23;
-	//next_id = rand() % 24;
-	next_id = 24;
+	id = rand() % 25;
+	next_id = rand() % 25;
 	Draw(point[0], point[1], id);
 	Draw(5, 16, next_id);
 	int count;
@@ -446,22 +455,21 @@ void Tetris::Run()					//运行游戏
 			AddLine();
 			if (Judge(point[0] + 1, point[1], id))			//在某一位置不能下落的话
 			{
+				AddLine();
 				Updata();
 				id = next_id;
 				ReDraw(5, 16, next_id);
-				//next_id = 24;
-				next_id = rand() % 24;
+				next_id = rand() % 25;
 
 				point[0] = 0; point[1] = 5;
 				Draw(point[0], point[1], id);
 				Draw(5, 16, next_id);
 
 				while (CheckDot()) {
-					AddLine();
+					
 					id = next_id;
 					ReDraw(5, 16, next_id);
-					//next_id = 24;
-					next_id = rand() % 24;
+					next_id = rand() % 25;
 
 					point[0] = 0; point[1] = 5;
 					Draw(point[0], point[1], id);
@@ -481,13 +489,13 @@ void Tetris::Run()					//运行游戏
 			}
 			else					//继续下落
 			{
+				UpdateMap();
+				AddLine();
 				ReDraw(point[0], point[1], id);
 				point[0]++;
 				Draw(point[0], point[1], id);
-				AddLine();
 			}
 		}
-		AddLine();
 		KeyEvent();
 		Sleep(1);		//等待1毫秒
 		i++;				//控制下落间隔
@@ -543,7 +551,6 @@ void Tetris::KeyEvent() {
 			Pause();
 	}
 }
-
 bool Tetris::CheckDot() {
 	startTime_dot = clock();
 	if (id == 24) {
@@ -553,12 +560,11 @@ bool Tetris::CheckDot() {
 			KeyDot();
 			endTime_dot = clock();
 		}
-		UpdateMap();//消除超级点
+		UpdateMap();//更新界面，消除超级点
 		return true;
 	}
 	return false;
 }
-
 void Tetris::KeyDot()
 {
 	if (_kbhit())				//键盘输入值时 
@@ -574,9 +580,10 @@ void Tetris::KeyDot()
 				for (int x = 0; x < 25; x++) {
 					if ((map[x][point[1]] == 0 && map[x + 1][point[1]] != 0) || (map[x][point[1]] == 0 && x == 24)) {
 						map[x][point[1]] = 1;
-						SetPos((point[1] + 1) * 2, x + 1);
+						/*SetPos((point[1] + 1) * 2, x + 1);
 						SetColor(5);
-						cout << "■";
+						cout << "■";*/
+						UpdateMap();
 						int temp = point[0];
 						point[0] = x;
 						Updata();
@@ -589,9 +596,10 @@ void Tetris::KeyDot()
 			{
 				for (int x = 0; x < 25; x++) {
 					if (map[x][point[1]] != 0) {
-						SetPos((point[1] + 1) * 2, x + 1);
-						cout << "  ";
+						/*SetPos((point[1] + 1) * 2, x + 1);
+						cout << "  ";*/
 						map[x][point[1]] = 0;
+						UpdateMap();
 						int sign1 = 0;
 						for (int i = 0; i < 25; i++) {
 							if (map[x][i] != 0) {
@@ -601,10 +609,9 @@ void Tetris::KeyDot()
 							else sign1 = 0;
 						}//判断top是否需要改变
 						if (sign1 == 1) top = top - 1;
-						UpdateMap();
+						//UpdateMap();
 						break;
 					}
-					//Updata();
 				}
 			}
 			else if (key2 == 75)				//按向左方向键时
@@ -632,8 +639,6 @@ void Tetris::KeyDot()
 		}
 	}
 }
-
-
 int main()
 {
 	Tetris game;

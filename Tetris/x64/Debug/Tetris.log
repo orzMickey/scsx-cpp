@@ -1,4 +1,4 @@
 ﻿  Tetris.cpp
-D:\llp\Game\C++\Tetris\Tetris.cpp(251,16): warning C4838: 从“int”转换到“SHORT”需要收缩转换
-D:\llp\Game\C++\Tetris\Tetris.cpp(251,18): warning C4838: 从“int”转换到“SHORT”需要收缩转换
+D:\llp\Game\C++\Tetris\Tetris.cpp(252,16): warning C4838: 从“int”转换到“SHORT”需要收缩转换
+D:\llp\Game\C++\Tetris\Tetris.cpp(252,18): warning C4838: 从“int”转换到“SHORT”需要收缩转换
   Tetris.vcxproj -> D:\llp\Game\C++\Tetris\x64\Debug\Tetris.exe
